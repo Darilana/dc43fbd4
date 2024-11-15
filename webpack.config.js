@@ -1,4 +1,5 @@
 const HtmlWebPackPlugin = require('html-webpack-plugin');
+const path = require('path');
 
 module.exports = {
     entry: './src/index.ts',
@@ -44,5 +45,6 @@ module.exports = {
     },
     output: {
         publicPath: '/',
+        path: path.resolve(__dirname, 'docs'),
     },
 };
