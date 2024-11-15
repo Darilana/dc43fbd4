@@ -1,24 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityCall } from '../../types/call';
+import { ActivityCall } from '../../types/activity';
 import {
     Typography,
-    Box,
     makeStyles,
     Button,
     TableContainer,
     Table,
     TableRow,
     TableCell,
-    Paper,
+    TableBody,
 } from '@material-ui/core';
-import { CallDirection, CallType } from '../../constants/call';
+import { CallDirection, CallType } from '../../constants/activity';
 import { convertSecondsToDuration } from '../../utils/convertSecondsToDuration';
-import { getActivities, getActivity, updateCall } from '../../api/activities';
+import {
+    getActivities,
+    getActivity,
+    updateActivity,
+} from '../../api/activities';
 import { useActivityContext } from '../../data/ActivityContext';
 import ArchiveIcon from '@material-ui/icons/Archive';
 import UnarchiveIcon from '@material-ui/icons/Unarchive';
 import { Loader } from '../../components/Loader';
 import axios from 'axios';
+import { formatDate } from '../../utils/formatDate';
 
 const useStyles = makeStyles((theme) => ({
     detailsContainer: {
@@ -40,22 +44,16 @@ interface CallDetailsProps {
 
 export const CallDetails: React.FC<CallDetailsProps> = ({ callId }) => {
     const {
-        activities,
         setIsActivitiesListLoading,
         setActivities,
-        errorMessage,
         setErrorMessage,
-        isErrorShown,
         setIsErrorShown,
     } = useActivityContext();
 
     const classes = useStyles();
 
-    const [isUpdateCallLoading, setIsUpdateCallLoading] = useState(false);
     const [call, setCall] = useState<ActivityCall | null>(null);
     const [isCallLoading, setIsCallLoading] = useState(false);
-
-    console.log({ isCallLoading });
 
     useEffect(() => {
         const controller = new AbortController();
@@ -78,6 +76,25 @@ export const CallDetails: React.FC<CallDetailsProps> = ({ callId }) => {
         return () => controller.abort();
     }, []);
 
+    const handleUpdateCall = () => {
+        setIsCallLoading(true);
+
+        updateActivity(id, { is_archived: !is_archived })
+            .then(() => {
+                setIsCallLoading(false);
+                setIsActivitiesListLoading(true);
+                return getActivities();
+            })
+            .then((result) => {
+                setActivities(result);
+            })
+            .catch((e) => {
+                setIsErrorShown(true);
+                setErrorMessage(e.message);
+            })
+            .finally(() => setIsActivitiesListLoading(false));
+    };
+
     if (isCallLoading) {
         return <Loader />;
     }
@@ -92,30 +109,26 @@ export const CallDetails: React.FC<CallDetailsProps> = ({ callId }) => {
         );
     }
 
-    const { id, direction, to, via, duration, is_archived, call_type } = call;
-
-    const handleUpdateCall = () => {
-        setIsUpdateCallLoading(true);
-
-        updateCall(id, { is_archived: !is_archived })
-            .then(() => {
-                setIsUpdateCallLoading(false);
-                setIsActivitiesListLoading(true);
-                return getActivities();
-            })
-            .then((result) => {
-                setActivities(result);
-            })
-            .catch((e) => {
-                setIsErrorShown(true);
-                setErrorMessage(e.message);
-            })
-            .finally(() => setIsActivitiesListLoading(false));
-    };
+    const {
+        id,
+        direction,
+        to,
+        via,
+        duration,
+        is_archived,
+        call_type,
+        created_at,
+        from,
+    } = call;
 
     const rows = [
         { name: 'Duration:', data: convertSecondsToDuration(duration) },
+        {
+            name: 'Date:',
+            data: formatDate(created_at),
+        },
         { name: 'Called to:', data: to },
+        { name: 'Called from:', data: from },
         { name: 'Called via:', data: via },
     ];
 
@@ -126,10 +139,6 @@ export const CallDetails: React.FC<CallDetailsProps> = ({ callId }) => {
               ? `Incoming call (${call_type})`
               : `Outgoing call  (${call_type})`;
 
-    if (isUpdateCallLoading) {
-        return <Loader />;
-    }
-
     return (
         <div className={classes.detailsContainer}>
             <Typography align="center" variant="overline">
@@ -137,12 +146,14 @@ export const CallDetails: React.FC<CallDetailsProps> = ({ callId }) => {
             </Typography>
             <TableContainer>
                 <Table aria-label="call details table">
-                    {rows.map((row) => (
-                        <TableRow key={row.name}>
-                            <TableCell>{row.name}</TableCell>
-                            <TableCell align="right">{row.data}</TableCell>
-                        </TableRow>
-                    ))}
+                    <TableBody>
+                        {rows.map((row) => (
+                            <TableRow key={row.name}>
+                                <TableCell>{row.name}</TableCell>
+                                <TableCell align="right">{row.data}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
                 </Table>
             </TableContainer>
             <Button

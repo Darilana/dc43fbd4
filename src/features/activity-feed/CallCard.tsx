@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ActivityCall } from '../../types/call';
-import { CallDirection, CallType } from '../../constants/call';
+import { ActivityCall } from '../../types/activity';
+import { CallDirection, CallType } from '../../constants/activity';
 import PhoneCallbackIcon from '@material-ui/icons/PhoneCallback';
 import PhoneForwardedIcon from '@material-ui/icons/PhoneForwarded';
 import PhoneMissedIcon from '@material-ui/icons/PhoneMissed';
@@ -14,10 +14,10 @@ import {
     Collapse,
 } from '@material-ui/core';
 import { CallDetails } from './CallDetails';
-import { formatDate } from '../../utils/formatDate';
+import { formatTime } from '../../utils/formatTime';
 
 const useStyles = makeStyles(() => ({
-    root: {
+    container: {
         marginBottom: '1rem',
     },
     content: {
@@ -33,7 +33,7 @@ interface CallCardProps {
 
 export const CallCard: React.FC<CallCardProps> = ({ call }) => {
     const { id, created_at, direction, from, to, call_type } = call;
-    const date = formatDate(created_at);
+    const formattedDate = formatTime(created_at);
 
     const classes = useStyles();
 
@@ -42,7 +42,7 @@ export const CallCard: React.FC<CallCardProps> = ({ call }) => {
     const handleExpandClick = () => setExpanded(!expanded);
 
     return (
-        <Card className={classes.root}>
+        <Card className={classes.container}>
             <CardActionArea onClick={handleExpandClick}>
                 <CardContent className={classes.content}>
                     <Box>
@@ -57,7 +57,7 @@ export const CallCard: React.FC<CallCardProps> = ({ call }) => {
                     <Typography>
                         {direction === CallDirection.Inbound ? from : to}
                     </Typography>
-                    <Typography>{date}</Typography>
+                    <Typography>{formattedDate}</Typography>
                 </CardContent>
             </CardActionArea>
             <Collapse in={expanded} timeout="auto" unmountOnExit>

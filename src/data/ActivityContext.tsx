@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getActivities } from '../api/activities';
-import { ActivityCall } from '../types/call';
+import { ActivityCall } from '../types/activity';
 import axios from 'axios';
 
 interface ActivityContextProviderState {

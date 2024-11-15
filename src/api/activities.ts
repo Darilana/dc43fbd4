@@ -1,7 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
-import { ActivityCall } from '../types/call';
-
-const BASE_URL = 'https://aircall-api.onrender.com';
+import { ActivityCall } from '../types/activity';
+import { BASE_URL } from '../constants/activity';
 
 export const getActivities = async (
     signal?: AbortSignal
@@ -34,7 +33,7 @@ interface UpdateCallBody {
     is_archived: boolean;
 }
 
-export const updateCall = async (
+export const updateActivity = async (
     callId: string,
     body: UpdateCallBody
 ): Promise<ActivityCall> => {
@@ -46,6 +45,6 @@ export const updateCall = async (
     return response.data;
 };
 
-export const resetCalls = async (): Promise<void> => {
+export const resetActivities = async (): Promise<void> => {
     await axios.patch(`${BASE_URL}/reset`);
 };

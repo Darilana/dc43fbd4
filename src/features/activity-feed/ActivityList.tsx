@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityCall } from '../../types/call';
+import { ActivityCall } from '../../types/activity';
 import { CallCard } from './CallCard';
 import { useActivityContext } from '../../data/ActivityContext';
 import { Loader } from '../../components/Loader';

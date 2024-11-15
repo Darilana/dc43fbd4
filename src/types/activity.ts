@@ -1,4 +1,4 @@
-import { CallDirection, CallType } from '../constants/call';
+import { CallDirection, CallType } from '../constants/activity';
 
 export interface ActivityCall {
     id: string;
