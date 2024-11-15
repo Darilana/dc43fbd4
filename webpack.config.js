@@ -44,7 +44,6 @@ module.exports = {
         historyApiFallback: true,
     },
     output: {
-        publicPath: '/',
         path: path.resolve(__dirname, 'docs'),
     },
 };
